@@ -1,6 +1,6 @@
-# double pendulum
+# Double Pendulum Simulation
 
-A simple double pendulum simulation built using **C++** and **raylib**. The simulation calculates the chaotic movement of a double pendulum system by solving the equations of motion derived from Lagrangian mechanics.
+A simple double pendulum simulation built using **C** and **raylib**. The simulation calculates the chaotic movement of a double pendulum system by solving the equations of motion derived from Lagrangian mechanics.
 
 ## Lagrangian Physics Overview
 
@@ -44,3 +44,18 @@ $$\ddot{\theta}_2 = \frac{2\sin(\theta_1 - \theta_2)\left( \dot{\theta}_1^2 L_1(
 The simulation maps these equations into code using a basic **Euler Integration** method to step through time:
 
 ```cpp
+void update(Point* p1, Point* p2) {
+    // 1. Compute angular accelerations (theta_dotdot) using Lagrangian equations
+    p1->theta_dotdot = (-G*(2*p1->m + p2->m)*sinf(p1->theta) - p2->m * G * sinf(p1->theta - 2* p2->theta) -2 *sinf(p1->theta - p2->theta)*p2->m *(p2->theta_dot * p2->theta_dot * p2->L + p1->theta_dot * p1->theta_dot * p1->L * cosf(p1->theta - p2->theta) ));
+    p1->theta_dotdot = p1->theta_dotdot / (p1->L * (2 * p1->m + p2->m - p2->m * cosf(2*p1->theta - 2*p2->theta)));
+
+    p2->theta_dotdot = (2*sinf(p1->theta - p2->theta) * (p1->theta_dot * p1->theta_dot * p1->L * (p1->m + p2->m) + (G *(p1->m + p2->m) * cosf(p1->theta)) + (p2->theta_dot * p2->theta_dot * p2->L * p2->m * cosf(p1->theta - p2->theta))));
+    p2->theta_dotdot = p2->theta_dotdot / (p2->L * (2 * p1->m + p2->m - (p2->m * cosf(2 * p1->theta - 2 * p2->theta))));
+    
+    // 2. Numerical Integration (Update velocities and positions)
+    p1->theta_dot += p1->theta_dotdot;
+    p1->theta     += p1->theta_dot;
+
+    p2->theta_dot += p2->theta_dotdot;
+    p2->theta     += p2->theta_dot;
+}
