@@ -38,24 +38,3 @@ $$\ddot{\theta}_1 = \frac{-g(2m_1 + m_2)\sin\theta_1 - m_2 g \sin(\theta_1 - 2\t
 $$\ddot{\theta}_2 = \frac{2\sin(\theta_1 - \theta_2)\left( \dot{\theta}_1^2 L_1(m_1 + m_2) + g(m_1 + m_2)\cos\theta_1 + \dot{\theta}_2^2 L_2 m_2 \cos(\theta_1 - \theta_2) \right)}{L_2(2m_1 + m_2 - m_2\cos(2\theta_1 - 2\theta_2))}$$
 
 ---
-
-## Code Implementation
-
-The simulation maps these equations into code using a basic **Euler Integration** method to step through time:
-
-```cpp
-void update(Point* p1, Point* p2) {
-    // 1. Compute angular accelerations (theta_dotdot) using Lagrangian equations
-    p1->theta_dotdot = (-G*(2*p1->m + p2->m)*sinf(p1->theta) - p2->m * G * sinf(p1->theta - 2* p2->theta) -2 *sinf(p1->theta - p2->theta)*p2->m *(p2->theta_dot * p2->theta_dot * p2->L + p1->theta_dot * p1->theta_dot * p1->L * cosf(p1->theta - p2->theta) ));
-    p1->theta_dotdot = p1->theta_dotdot / (p1->L * (2 * p1->m + p2->m - p2->m * cosf(2*p1->theta - 2*p2->theta)));
-
-    p2->theta_dotdot = (2*sinf(p1->theta - p2->theta) * (p1->theta_dot * p1->theta_dot * p1->L * (p1->m + p2->m) + (G *(p1->m + p2->m) * cosf(p1->theta)) + (p2->theta_dot * p2->theta_dot * p2->L * p2->m * cosf(p1->theta - p2->theta))));
-    p2->theta_dotdot = p2->theta_dotdot / (p2->L * (2 * p1->m + p2->m - (p2->m * cosf(2 * p1->theta - 2 * p2->theta))));
-    
-    // 2. Numerical Integration (Update velocities and positions)
-    p1->theta_dot += p1->theta_dotdot;
-    p1->theta     += p1->theta_dot;
-
-    p2->theta_dot += p2->theta_dotdot;
-    p2->theta     += p2->theta_dot;
-}
